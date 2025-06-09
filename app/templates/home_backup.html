@@ -28,26 +28,29 @@
       function out_layers(map, options) {
         // Admin boundaries (polygons) — show adm2_en
         var datasets = new L.GeoJSON.AJAX("{% url 'admin_data' %}", {
-                style: function colours(feature) {
+        style: function colours(feature) {
             switch (feature.properties.adm1_en) {
               case 'Manicaland':
-                return {color: 'blue',
-               fillOpacity: 0.8};
+                return {color: 'blue'};
               case 'Matabeleland North':
-                return {color: 'green',};
+                return {color: 'green'};
               case 'Masvingo':
                 return {color: 'red'};
               default:
                 return {color: 'gray'};
             }
         },
+
           onEachFeature: function (feature, layer) {
             if (feature.properties && feature.properties.adm2_en) {
               layer.bindPopup("District: " + feature.properties.adm2_en);
             }
           }
         });
-
+    // 🔥 Fix: wait for data to load, THEN add to map
+    datasets.on('data:loaded', function () {
+      datasets.addTo(map);
+    });
         // Incident points — show name
         var incident_points = new L.GeoJSON.AJAX("{% url 'incidence_data' %}", {
           onEachFeature: function (feature, layer) {
